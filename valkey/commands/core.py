@@ -24,7 +24,10 @@ from typing import (
 from valkey.exceptions import ConnectionError, DataError, NoScriptError, ValkeyError
 from valkey.typing import (
     AbsExpiryT,
+    AnyEncodableT,
+    AnyFieldT,
     AnyKeyT,
+    AnyStreamIdT,
     BitfieldOffsetT,
     ChannelT,
     CommandsProtocol,
@@ -1859,8 +1862,8 @@ class BasicKeyCommands(CommandsProtocol):
         For more information see https://valkey.io/commands/getex
         """
 
-        opset = {ex, px, exat, pxat}
-        if len(opset) > 2 or len(opset) > 1 and persist:
+        opvs = sum(op is not None for op in [ex, px, exat, pxat])
+        if opvs > 1 or (opvs and persist):
             raise DataError(
                 "``ex``, ``px``, ``exat``, ``pxat``, "
                 "and ``persist`` are mutually exclusive."
@@ -3517,7 +3520,7 @@ class StreamCommands(CommandsProtocol):
     def xadd(
         self,
         name: KeyT,
-        fields: Dict[FieldT, EncodableT],
+        fields: Mapping[AnyFieldT, AnyEncodableT],
         id: StreamIdT = "*",
         maxlen: Union[int, None] = None,
         approximate: bool = True,
@@ -3942,7 +3945,7 @@ class StreamCommands(CommandsProtocol):
 
     def xread(
         self,
-        streams: Dict[KeyT, StreamIdT],
+        streams: Mapping[AnyKeyT, AnyStreamIdT],
         count: Union[int, None] = None,
         block: Union[int, None] = None,
     ) -> ResponseT:
@@ -3982,7 +3985,7 @@ class StreamCommands(CommandsProtocol):
         self,
         groupname: str,
         consumername: str,
-        streams: Dict[KeyT, StreamIdT],
+        streams: Mapping[AnyKeyT, AnyStreamIdT],
         count: Union[int, None] = None,
         block: Union[int, None] = None,
         noack: bool = False,
