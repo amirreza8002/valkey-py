@@ -3322,7 +3322,7 @@ class SetCommands(CommandsProtocol):
     see: https://valkey.io/topics/data-types#sets
     """
 
-    def sadd(self, name: str, *values: FieldT) -> Union[Awaitable[int], int]:
+    def sadd(self, name: KeyT, *values: FieldT) -> int:
         """
         Add ``value(s)`` to set ``name``
 
@@ -3330,7 +3330,7 @@ class SetCommands(CommandsProtocol):
         """
         return self.execute_command("SADD", name, *values)
 
-    def scard(self, name: str) -> Union[Awaitable[int], int]:
+    def scard(self, name: KeyT) -> int:
         """
         Return the number of elements in set ``name``
 
@@ -3338,7 +3338,7 @@ class SetCommands(CommandsProtocol):
         """
         return self.execute_command("SCARD", name, keys=[name])
 
-    def sdiff(self, keys: List, *args: List) -> Union[Awaitable[list], list]:
+    def sdiff(self, keys: Union[Iterable[KeyT], KeyT], *args: Iterable[KeyT]) -> List:
         """
         Return the difference of sets specified by ``keys``
 
@@ -3348,8 +3348,8 @@ class SetCommands(CommandsProtocol):
         return self.execute_command("SDIFF", *args, keys=args)
 
     def sdiffstore(
-        self, dest: str, keys: List, *args: List
-    ) -> Union[Awaitable[int], int]:
+        self, dest: KeyT, keys: Union[Iterable[KeyT], KeyT], *args: Iterable[KeyT] 
+    ) -> int:
         """
         Store the difference of sets specified by ``keys`` into a new
         set named ``dest``.  Returns the number of keys in the new set.
@@ -3359,7 +3359,7 @@ class SetCommands(CommandsProtocol):
         args = list_or_args(keys, args)
         return self.execute_command("SDIFFSTORE", dest, *args)
 
-    def sinter(self, keys: List, *args: List) -> Union[Awaitable[list], list]:
+    def sinter(self, keys: Union[Iterable[KeyT], KeyT], *args: Iterable[KeyT]) -> List:
         """
         Return the intersection of sets specified by ``keys``
 
@@ -3369,8 +3369,8 @@ class SetCommands(CommandsProtocol):
         return self.execute_command("SINTER", *args, keys=args)
 
     def sintercard(
-        self, numkeys: int, keys: List[str], limit: int = 0
-    ) -> Union[Awaitable[int], int]:
+        self, numkeys: int, keys: Iterable[KeyT], limit: int = 0
+    ) -> int:
         """
         Return the cardinality of the intersect of multiple sets specified by ``keys``.
 
@@ -3384,8 +3384,8 @@ class SetCommands(CommandsProtocol):
         return self.execute_command("SINTERCARD", *args, keys=keys)
 
     def sinterstore(
-        self, dest: str, keys: List, *args: List
-    ) -> Union[Awaitable[int], int]:
+        self, dest: str, keys: Union[Iterable[KeyT], KeyT], *args: Iterable[KeyT]
+    ) -> int:
         """
         Store the intersection of sets specified by ``keys`` into a new
         set named ``dest``.  Returns the number of keys in the new set.
@@ -3396,8 +3396,8 @@ class SetCommands(CommandsProtocol):
         return self.execute_command("SINTERSTORE", dest, *args)
 
     def sismember(
-        self, name: str, value: str
-    ) -> Union[Awaitable[Union[Literal[0], Literal[1]]], Union[Literal[0], Literal[1]]]:
+        self, name: KeyT, value: FieldT
+    ) -> int:
         """
         Return whether ``value`` is a member of set ``name``:
         - 1 if the value is a member of the set.
@@ -3407,7 +3407,7 @@ class SetCommands(CommandsProtocol):
         """
         return self.execute_command("SISMEMBER", name, value, keys=[name])
 
-    def smembers(self, name: str) -> Union[Awaitable[Set], Set]:
+    def smembers(self, name: KeyT) -> List:
         """
         Return all members of the set ``name``
 
@@ -3415,10 +3415,7 @@ class SetCommands(CommandsProtocol):
         """
         return self.execute_command("SMEMBERS", name, keys=[name])
 
-    def smismember(self, name: str, values: List, *args: List) -> Union[
-        Awaitable[List[Union[Literal[0], Literal[1]]]],
-        List[Union[Literal[0], Literal[1]]],
-    ]:
+    def smismember(self, name: KeyT, values: Union[Iterable[FieldT], FieldT], *args: Iterable[FieldT]) -> int:
         """
         Return whether each value in ``values`` is a member of the set ``name``
         as a list of ``int`` in the order of ``values``:
@@ -3430,7 +3427,7 @@ class SetCommands(CommandsProtocol):
         args = list_or_args(values, args)
         return self.execute_command("SMISMEMBER", name, *args, keys=[name])
 
-    def smove(self, src: str, dst: str, value: str) -> Union[Awaitable[bool], bool]:
+    def smove(self, src: KeyT, dst: KeyT, value: FieldT) -> bool:
         """
         Move ``value`` from set ``src`` to set ``dst`` atomically
 
@@ -3438,7 +3435,7 @@ class SetCommands(CommandsProtocol):
         """
         return self.execute_command("SMOVE", src, dst, value)
 
-    def spop(self, name: str, count: Optional[int] = None) -> Union[str, List, None]:
+    def spop(self, name: KeyT, count: Optional[int] = None) -> Union[List, bytes, None]:
         """
         Remove and return a random member of set ``name``
 
@@ -3448,8 +3445,8 @@ class SetCommands(CommandsProtocol):
         return self.execute_command("SPOP", name, *args)
 
     def srandmember(
-        self, name: str, number: Optional[int] = None
-    ) -> Union[str, List, None]:
+        self, name: KeyT, number: Optional[int] = None
+    ) -> Union[List, bytes, None]:
         """
         If ``number`` is None, returns a random member of set ``name``.
 
@@ -3461,7 +3458,7 @@ class SetCommands(CommandsProtocol):
         args = (number is not None) and [number] or []
         return self.execute_command("SRANDMEMBER", name, *args)
 
-    def srem(self, name: str, *values: FieldT) -> Union[Awaitable[int], int]:
+    def srem(self, name: KeyT, *values: FieldT) -> int:
         """
         Remove ``values`` from set ``name``
 
@@ -3469,7 +3466,7 @@ class SetCommands(CommandsProtocol):
         """
         return self.execute_command("SREM", name, *values)
 
-    def sunion(self, keys: List, *args: List) -> Union[Awaitable[List], List]:
+    def sunion(self, keys: Union[Iterable[KeyT], KeyT], *args: Iterable[KeyT]) -> List:
         """
         Return the union of sets specified by ``keys``
 
@@ -3479,8 +3476,8 @@ class SetCommands(CommandsProtocol):
         return self.execute_command("SUNION", *args, keys=args)
 
     def sunionstore(
-        self, dest: str, keys: List, *args: List
-    ) -> Union[Awaitable[int], int]:
+        self, dest: KeyT, keys: Union[Iterable[KeyT], KeyT], *args: Iterable[KeyT] 
+    ) -> int:
         """
         Store the union of sets specified by ``keys`` into a new
         set named ``dest``.  Returns the number of keys in the new set.
